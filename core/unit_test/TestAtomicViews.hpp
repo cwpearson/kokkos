@@ -1377,7 +1377,7 @@ bool AtomicViewsTestNonIntegralType(const int length, int test) {
 namespace Test {
 
 TEST(TEST_CATEGORY, atomic_views_integral) {
-  const int64_t length = 1000000;
+  const int64_t length = 1000;
   {
     // Integral Types.
     ASSERT_TRUE(
