@@ -167,24 +167,16 @@ void *impl_allocate_common(const Cuda &exec_space, const char *arg_label,
 #ifndef CUDART_VERSION
 #error CUDART_VERSION undefined!
 #elif (defined(KOKKOS_ENABLE_IMPL_CUDA_MALLOC_ASYNC) && CUDART_VERSION >= 11020)
-  cudaError_t error_code;
-  if (arg_alloc_size >= memory_threshold_g) {
-    if (exec_space_provided) {
-      cudaStream_t stream = exec_space.cuda_stream();
-      error_code          = cudaMallocAsync(&ptr, arg_alloc_size, stream);
-      exec_space.fence("Kokkos::Cuda: backend fence after async malloc");
-    } else {
-      error_code = cudaMallocAsync(&ptr, arg_alloc_size, 0);
-      Impl::cuda_device_synchronize(
-          "Kokkos::Cuda: backend fence after async malloc");
-    }
-  } else {
-    error_code = cudaMalloc(&ptr, arg_alloc_size);
-  }
 #else
+  cudaError_t error_code;
   (void)exec_space;
   (void)exec_space_provided;
-  auto error_code = cudaMalloc(&ptr, arg_alloc_size);
+  ptr = malloc(arg_alloc_size);
+  if (arg_alloc_size && ptr) {
+    error_code = cudaSuccess;
+  } else {
+    error_code = cudaErrorUnknown;
+  }
 #endif
   if (error_code != cudaSuccess) {  // TODO tag as unlikely branch
     cudaGetLastError();  // This is the only way to clear the last error, which
