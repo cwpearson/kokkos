@@ -175,7 +175,7 @@ void *impl_allocate_common(const Cuda &exec_space, const char *arg_label,
   if (arg_alloc_size && ptr) {
     error_code = cudaSuccess;
   } else {
-    error_code = cudaErrorUnknown;
+    error_code = cudaErrorMemoryAllocation;
   }
 #endif
   if (error_code != cudaSuccess) {  // TODO tag as unlikely branch
