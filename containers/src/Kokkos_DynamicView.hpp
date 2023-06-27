@@ -95,8 +95,10 @@ struct ChunkedArrayManager {
   static ChunkedArrayManager<Space, ValueType> create_mirror(
       ChunkedArrayManager<MemorySpace, ValueType> const& other,
       std::enable_if_t<IsAccessibleFrom<Space>::value>* = nullptr) {
+    using tag_type =
+        typename ChunkedArrayManager<Space, ValueType>::ACCESSIBLE_TAG;
     return ChunkedArrayManager<Space, ValueType>{
-        ACCESSIBLE_TAG{}, other.m_chunks, other.m_chunk_max};
+        tag_type{}, other.m_chunks, other.m_chunk_max};
   }
 
   template <typename Space>
