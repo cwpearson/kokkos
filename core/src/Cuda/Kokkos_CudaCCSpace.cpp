@@ -63,8 +63,14 @@ void *impl_allocate_common(const Cuda &exec_space, const char *arg_label,
   (void)arg_logical_size;
   void *ptr = malloc(arg_alloc_size);
   if (arg_alloc_size && !ptr) {
-        throw std::runtime_error("falled to malloc"); // FIXME_CUDACCSPACE
+
+    throw Experimental::RawMemoryAllocationFailure(
+      arg_alloc_size, 0/*attempted alignment? FIXME_CUDACCSPACE */
+      );
+
   }
+
+
 
   return ptr;
 }
