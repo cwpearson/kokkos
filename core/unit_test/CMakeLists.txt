@@ -245,7 +245,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
 
     set(TagHostAccessible ${Tag})
     if (Tag STREQUAL "Cuda")
-      set(TagHostAccessible CudaUVM)
+      set(TagHostAccessible CudaCC) # FIXME_CUDACC: this was UVM
     elseif(Tag STREQUAL "HIP")
       set(TagHostAccessible HIPManaged)
     elseif(Tag STREQUAL "SYCL")
@@ -316,7 +316,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
   endif()
 endforeach()
 
-foreach(PairDeviceSpace HIP-HostPinned;HIP-Managed;Cuda-HostPinned;Cuda-UVM;SYCL-HostUSM;SYCL-SharedUSM)
+foreach(PairDeviceSpace HIP-HostPinned;HIP-Managed;Cuda-HostPinned;Cuda-UVM;Cuda-CC;SYCL-HostUSM;SYCL-SharedUSM)
   string(REGEX REPLACE "([^-]*)-(.*)" "\\1" DEVICE ${PairDeviceSpace})
   string(REGEX REPLACE "([^-]*)-(.*)" "\\2" SPACE ${PairDeviceSpace})
 
