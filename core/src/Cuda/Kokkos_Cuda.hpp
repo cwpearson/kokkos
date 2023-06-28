@@ -103,6 +103,9 @@ class Cuda {
 #if defined(KOKKOS_ENABLE_CUDA_UVM)
   //! This execution space's preferred memory space.
   using memory_space = CudaUVMSpace;
+#elif defined(KOKKOS_ENABLE_CUDA_CC)
+  //! This execution space's preferred memory space.
+  using memory_space = CudaCCSpace;
 #else
   //! This execution space's preferred memory space.
   using memory_space = CudaSpace;
@@ -264,10 +267,21 @@ struct MemorySpaceAccess<Kokkos::CudaSpace,
 // then must assume that CudaUVMSpace
 // can be a stand-in for CudaSpace.
 // This will fail when a strange host-side execution space
-// that defines CudaUVMSpace as its preferredmemory space.
+// that defines CudaUVMSpace as its preferred memory space.
 
 template <>
 struct MemorySpaceAccess<Kokkos::CudaUVMSpace,
+                         Kokkos::Cuda::scratch_memory_space> {
+  enum : bool { assignable = false };
+  enum : bool { accessible = true };
+  enum : bool { deepcopy = false };
+};
+#endif
+
+#if defined(KOKKOS_ENABLE_CUDA_CC)
+
+template <>
+struct MemorySpaceAccess<Kokkos::CudaCCSpace,
                          Kokkos::Cuda::scratch_memory_space> {
   enum : bool { assignable = false };
   enum : bool { accessible = true };

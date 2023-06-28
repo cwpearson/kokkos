@@ -113,6 +113,17 @@ struct MemorySpaceAccess<Kokkos::CudaSpace, Kokkos::CudaCCSpace> {
   enum : bool { deepcopy = true };
 };
 
+// FIXME_CUDACC
+// When ENABLE_CUDA_CC and ENABLE_CUDA_UVM, Cuda::memory_space is still cuda UVM
+// CudaCCSpace::execution_space::memory_space is CudaUVMSpace, not CudaCCSpace
+// some ViewTraits static asserts want CudaCCSpace::execution_space to be able to access CudaCCSpace::memory_space
+template <>
+struct MemorySpaceAccess<Kokkos::CudaUVMSpace, Kokkos::CudaCCSpace> {
+  enum : bool { assignable = false };
+  enum : bool { accessible = true };
+  enum : bool { deepcopy = true };
+};
+
 template <>
 struct MemorySpaceAccess<Kokkos::CudaCCSpace, Kokkos::HostSpace> {
   enum : bool { assignable = false };
@@ -127,6 +138,12 @@ struct MemorySpaceAccess<Kokkos::CudaCCSpace, Kokkos::CudaSpace> {
   enum : bool { deepcopy = true };
 };
 
+template <>
+struct MemorySpaceAccess<Kokkos::CudaCCSpace, Kokkos::CudaUVMSpace> {
+  enum : bool { assignable = false };
+  enum : bool { accessible = true };
+  enum : bool { deepcopy = true };
+};
 
 }  // namespace Impl
 }  // namespace Kokkos
