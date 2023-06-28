@@ -243,71 +243,78 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenMPTarget;OpenACC;HIP;SYCL)
       list(APPEND ${Tag}_SOURCES2A ${file})
     endforeach()
 
-    set(TagHostAccessible ${Tag})
+    
+    set(TagsHostAccessible ${Tag})
     if (Tag STREQUAL "Cuda")
-      set(TagHostAccessible CudaCC) # FIXME_CUDACC: this was UVM
+      set(TagsHostAccessible CudaUVM CudaCC)
     elseif(Tag STREQUAL "HIP")
-      set(TagHostAccessible HIPManaged)
+      set(TagsHostAccessible HIPManaged)
     elseif(Tag STREQUAL "SYCL")
-      set(TagHostAccessible SYCLSharedUSM)
+      set(TagsHostAccessible SYCLSharedUSM)
     endif()
 
     set(${Tag}_SOURCES2B)
-    foreach(Name
-      SubView_a
-      SubView_b
-      SubView_c01
-      SubView_c02
-      SubView_c03
-      SubView_c04
-      SubView_c05
-      )
-      set(file ${dir}/Test${Tag}_${Name}.cpp)
-      # Write to a temporary intermediate file and call configure_file to avoid
-      # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
-      file(WRITE ${dir}/dummy.cpp
-          "#include <Test${TagHostAccessible}_Category.hpp>\n"
-          "#include <Test${Name}.hpp>\n"
-      )
-      configure_file(${dir}/dummy.cpp ${file})
-      list(APPEND ${Tag}_SOURCES2B ${file})
+    foreach(TagHostAccessible ${TagsHostAccessible})
+      foreach(Name
+        SubView_a
+        SubView_b
+        SubView_c01
+        SubView_c02
+        SubView_c03
+        SubView_c04
+        SubView_c05
+        )
+        set(file ${dir}/Test${Tag}_${TagHostAccessible}_${Name}.cpp)
+        # Write to a temporary intermediate file and call configure_file to avoid
+        # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
+        file(WRITE ${dir}/dummy.cpp
+            "#include <Test${TagHostAccessible}_Category.hpp>\n"
+            "#include <Test${Name}.hpp>\n"
+        )
+        configure_file(${dir}/dummy.cpp ${file})
+        list(APPEND ${Tag}_SOURCES2B ${file})
+      endforeach()
     endforeach()
 
     set(${Tag}_SOURCES2C)
-    foreach(Name
-      SubView_c06
-      SubView_c07
-      SubView_c08
-      SubView_c09
-      )
-      set(file ${dir}/Test${Tag}_${Name}.cpp)
-      # Write to a temporary intermediate file and call configure_file to avoid
-      # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
-      file(WRITE ${dir}/dummy.cpp
-          "#include <Test${TagHostAccessible}_Category.hpp>\n"
-          "#include <Test${Name}.hpp>\n"
-      )
-      configure_file(${dir}/dummy.cpp ${file})
-      list(APPEND ${Tag}_SOURCES2C ${file})
+    foreach(TagHostAccessible ${TagsHostAccessible})
+      foreach(Name
+        SubView_c06
+        SubView_c07
+        SubView_c08
+        SubView_c09
+        )
+        set(file ${dir}/Test${Tag}_${TagHostAccessible}_${Name}.cpp)
+        # Write to a temporary intermediate file and call configure_file to avoid
+        # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
+        file(WRITE ${dir}/dummy.cpp
+            "#include <Test${TagHostAccessible}_Category.hpp>\n"
+            "#include <Test${Name}.hpp>\n"
+        )
+        configure_file(${dir}/dummy.cpp ${file})
+        list(APPEND ${Tag}_SOURCES2C ${file})
+      endforeach()
     endforeach()
 
     set(${Tag}_SOURCES2D)
-    foreach(Name
-      SubView_c10
-      SubView_c11
-      SubView_c12
-      SubView_c13
-      SubView_c14
-      )
-      set(file ${dir}/Test${Tag}_${Name}.cpp)
-      # Write to a temporary intermediate file and call configure_file to avoid
-      # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
-      file(WRITE ${dir}/dummy.cpp
-          "#include <Test${TagHostAccessible}_Category.hpp>\n"
-          "#include <Test${Name}.hpp>\n"
-      )
-      configure_file(${dir}/dummy.cpp ${file})
-      list(APPEND ${Tag}_SOURCES2D ${file})
+    foreach(TagHostAccessible ${TagsHostAccessible})
+      foreach(Name
+        SubView_c10
+        SubView_c11
+        SubView_c12
+        SubView_c13
+        SubView_c14
+        )
+        set(file ${dir}/Test${Tag}_${TagHostAccessible}_${Name}.cpp)
+        # Write to a temporary intermediate file and call configure_file to avoid
+        # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
+        file(WRITE ${dir}/dummy.cpp
+            "#include <Test${TagHostAccessible}_Category.hpp>\n"
+            "#include <Test${Name}.hpp>\n"
+        )
+        configure_file(${dir}/dummy.cpp ${file})
+        list(APPEND ${Tag}_SOURCES2D ${file})
+      endforeach()
     endforeach()
 
     SET(${Tag}_SOURCES1 ${${Tag}_SOURCES1A} ${${Tag}_SOURCES1B})
