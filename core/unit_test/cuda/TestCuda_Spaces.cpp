@@ -152,6 +152,9 @@ TEST(cuda, space_access) {
 
   //--------------------------------------
 
+
+  // FIXME_CUDACC: When CUDA_CC enabled Kokkos::Cuda can access HostSpace
+  // since Kokkos::Cuda::memory_space is CudaCC, which can access HostSpace
   static_assert(
       !Kokkos::SpaceAccessibility<Kokkos::Cuda, Kokkos::HostSpace>::accessible,
       "");

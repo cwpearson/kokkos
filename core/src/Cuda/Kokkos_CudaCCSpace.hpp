@@ -124,10 +124,18 @@ struct MemorySpaceAccess<Kokkos::CudaUVMSpace, Kokkos::CudaCCSpace> {
   enum : bool { deepcopy = true };
 };
 
+// FIXME_CUDACC: need Cuda to be able to access CudaHostPinnedSpace?
+template <>
+struct MemorySpaceAccess<Kokkos::CudaCCSpace, Kokkos::CudaHostPinnedSpace> {
+  enum : bool { assignable = false };
+  enum : bool { accessible = true };
+  enum : bool { deepcopy = true };
+};
+
 template <>
 struct MemorySpaceAccess<Kokkos::CudaCCSpace, Kokkos::HostSpace> {
   enum : bool { assignable = false };
-  enum : bool { accessible = true };
+  enum : bool { accessible = false }; // Cuda cannot access HostSpace
   enum : bool { deepcopy = true };
 };
 
