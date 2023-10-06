@@ -14,6 +14,10 @@
 //
 //@HEADER
 
+#include <iostream>
+
+#define MAPPED_REDUCE 1
+
 #ifndef KOKKO_HIP_PARALLEL_RANGE_HPP
 #define KOKKO_HIP_PARALLEL_RANGE_HPP
 
@@ -219,7 +223,7 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
           ::Kokkos::kokkos_impl_hip_shared_memory<word_size_type>() +
           (blockDim.y - 1) * word_count.value;
       word_size_type* const global =
-#if 0
+#if !MAPPED_REDUCE
           m_result_ptr_device_accessible
               ? reinterpret_cast<word_size_type*>(m_result_ptr)
               : m_scratch_space;
@@ -276,7 +280,7 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
     reducer.init(&init);
     if (m_policy.begin() == m_policy.end()) {
       reducer.final(&value);
-#if 0
+#if !MAPPED_REDUCE
       pointer_type const final_result =
           m_result_ptr_device_accessible ? m_result_ptr : result;
       *final_result = value;
@@ -292,7 +296,7 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
       unsigned int const id = threadIdx.y * blockDim.x + threadIdx.x;
       if (id == 0) {
         reducer.final(&value);
-#if 0
+#if !MAPPED_REDUCE
         pointer_type const final_result =
             m_result_ptr_device_accessible ? m_result_ptr : result;
         *final_result = value;
@@ -396,14 +400,16 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
 
       if (!m_result_ptr_device_accessible && m_result_ptr) {
         const int size = reducer.value_size();
-# if 0
-        DeepCopy<HostSpace, HostSpace, HIP>(m_policy.space(), m_result_ptr,
+# if !MAPPED_REDUCE
+        DeepCopy<HostSpace, HIPSpace, HIP>(m_policy.space(), m_result_ptr,
                                                m_scratch_space, size);
 #else
       // if the result was not device accessible, we put it into
       // the mapped space. memcpy to where expected
         m_policy.space().fence();
         std::memcpy(m_result_ptr, m_mapped_result, size);
+        // DeepCopy<HostSpace, HostSpace, HIP>(m_policy.space(), m_result_ptr,
+        //                                     m_mapped_result, size);
 #endif
       }
     } else {
