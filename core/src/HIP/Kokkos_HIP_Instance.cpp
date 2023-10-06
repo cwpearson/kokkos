@@ -185,6 +185,10 @@ void HIPInternal::initialize(hipStream_t stream, bool manage_stream) {
       hipMalloc(&m_scratch_locks, sizeof(int32_t) * m_num_scratch_locks));
   KOKKOS_IMPL_HIP_SAFE_CALL(
       hipMemset(m_scratch_locks, 0, sizeof(int32_t) * m_num_scratch_locks));
+
+  KOKKOS_IMPL_HIP_SAFE_CALL(
+      hipHostMalloc(&m_mapped_reduction, m_mapped_reduction_sz)
+  );
 }
 
 //----------------------------------------------------------------------------
@@ -364,6 +368,12 @@ void HIPInternal::finalize() {
   KOKKOS_IMPL_HIP_SAFE_CALL(hipFree(m_scratch_locks));
   m_scratch_locks     = nullptr;
   m_num_scratch_locks = 0;
+
+    KOKKOS_IMPL_HIP_SAFE_CALL(
+      hipHostFree(m_mapped_reduction)
+  );
+  m_mapped_reduction = nullptr;
+
 }
 
 //----------------------------------------------------------------------------

@@ -107,6 +107,9 @@ class HIPInternal {
   int32_t *m_scratch_locks                        = nullptr;
   size_t m_num_scratch_locks                      = 0;
 
+  constexpr static int m_mapped_reduction_sz = 512;
+  void *m_mapped_reduction = 0;
+
   bool was_finalized = false;
 
   // FIXME_HIP: these want to be per-device, not per-stream...  use of 'static'

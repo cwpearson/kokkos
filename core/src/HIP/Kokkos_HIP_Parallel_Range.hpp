@@ -149,6 +149,7 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
   const bool m_result_ptr_host_accessible;
   word_size_type* m_scratch_space = nullptr;
   size_type* m_scratch_flags      = nullptr;
+  void *m_mapped_result = nullptr;
 
   static constexpr bool UseShflReduction = false;
 
@@ -218,9 +219,17 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
           ::Kokkos::kokkos_impl_hip_shared_memory<word_size_type>() +
           (blockDim.y - 1) * word_count.value;
       word_size_type* const global =
+#if 0
           m_result_ptr_device_accessible
               ? reinterpret_cast<word_size_type*>(m_result_ptr)
               : m_scratch_space;
+#else
+          // if the result is not device accessible, put it into the mapped space
+          // to avoid a device-to-host copy at the end
+          m_result_ptr_device_accessible
+              ? reinterpret_cast<word_size_type*>(m_result_ptr)
+              : reinterpret_cast<word_size_type*>(m_mapped_result);
+#endif
 
       if (threadIdx.y == 0) {
         reducer.final(reinterpret_cast<value_type*>(shared));
@@ -267,18 +276,32 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
     reducer.init(&init);
     if (m_policy.begin() == m_policy.end()) {
       reducer.final(&value);
+#if 0
       pointer_type const final_result =
           m_result_ptr_device_accessible ? m_result_ptr : result;
       *final_result = value;
+#else
+      // if result pointer is not device accessible, store in mapped space
+      pointer_type const final_result =
+          m_result_ptr_device_accessible ? m_result_ptr : m_mapped_result;
+      *final_result = value;
+#endif
     } else if (Impl::hip_inter_block_shuffle_reduction<>(
                    value, init, reducer, m_scratch_space, result,
                    m_scratch_flags, max_active_thread)) {
       unsigned int const id = threadIdx.y * blockDim.x + threadIdx.x;
       if (id == 0) {
         reducer.final(&value);
+#if 0
         pointer_type const final_result =
             m_result_ptr_device_accessible ? m_result_ptr : result;
         *final_result = value;
+#else
+        // if result pointer is not device accessible, store in mapped space
+        pointer_type const final_result =
+            m_result_ptr_device_accessible ? m_result_ptr : m_mapped_result;
+        *final_result = value;
+#endif
       }
     }
   }
@@ -373,8 +396,15 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
 
       if (!m_result_ptr_device_accessible && m_result_ptr) {
         const int size = reducer.value_size();
-        DeepCopy<HostSpace, HIPSpace, HIP>(m_policy.space(), m_result_ptr,
-                                           m_scratch_space, size);
+# if 0
+        DeepCopy<HostSpace, HostSpace, HIP>(m_policy.space(), m_result_ptr,
+                                               m_scratch_space, size);
+#else
+      // if the result was not device accessible, we put it into
+      // the mapped space. memcpy to where expected
+        m_policy.space().fence();
+        std::memcpy(m_result_ptr, m_mapped_result, size);
+#endif
       }
     } else {
       if (m_result_ptr) {
@@ -394,7 +424,10 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
                               typename ViewType::memory_space>::accessible),
         m_result_ptr_host_accessible(
             MemorySpaceAccess<Kokkos::HostSpace,
-                              typename ViewType::memory_space>::accessible) {}
+                              typename ViewType::memory_space>::accessible),
+        m_mapped_result(
+          arg_policy.space().impl_internal_space_instance()->m_mapped_reduction
+        ) {}
 };
 
 template <class FunctorType, class ValueType, class... Traits>
