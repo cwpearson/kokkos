@@ -94,6 +94,9 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
   inline std::enable_if_t<std::is_void_v<TagType>> exec(
       reference_type update) const {
     const typename Policy::member_type e = m_policy.end();
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor_reducer.get_functor()(i, update);
     }
@@ -105,6 +108,9 @@ class ParallelReduce<CombinedFunctorReducerType, Kokkos::RangePolicy<Traits...>,
     const TagType t{};
 
     const typename Policy::member_type e = m_policy.end();
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor_reducer.get_functor()(t, i, update);
     }
@@ -186,6 +192,9 @@ class ParallelScan<FunctorType, Kokkos::RangePolicy<Traits...>,
   inline std::enable_if_t<std::is_void_v<TagType>> exec(
       reference_type update) const {
     const typename Policy::member_type e = m_policy.end();
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor_reducer.get_functor()(i, update, true);
     }
@@ -196,6 +205,9 @@ class ParallelScan<FunctorType, Kokkos::RangePolicy<Traits...>,
       reference_type update) const {
     const TagType t{};
     const typename Policy::member_type e = m_policy.end();
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor_reducer.get_functor()(t, i, update, true);
     }
@@ -261,6 +273,9 @@ class ParallelScanWithTotal<FunctorType, Kokkos::RangePolicy<Traits...>,
   inline std::enable_if_t<std::is_void_v<TagType>> exec(
       reference_type update) const {
     const typename Policy::member_type e = m_policy.end();
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor_reducer.get_functor()(i, update, true);
     }
@@ -271,6 +286,9 @@ class ParallelScanWithTotal<FunctorType, Kokkos::RangePolicy<Traits...>,
       reference_type update) const {
     const TagType t{};
     const typename Policy::member_type e = m_policy.end();
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor_reducer.get_functor()(t, i, update, true);
     }
