@@ -33,6 +33,9 @@ class ParallelFor<FunctorType, Kokkos::RangePolicy<Traits...>, Kokkos::Serial> {
   template <class TagType>
   std::enable_if_t<std::is_void_v<TagType>> exec() const {
     const typename Policy::member_type e = m_policy.end();
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor(i);
     }
@@ -42,6 +45,10 @@ class ParallelFor<FunctorType, Kokkos::RangePolicy<Traits...>, Kokkos::Serial> {
   std::enable_if_t<!std::is_void_v<TagType>> exec() const {
     const TagType t{};
     const typename Policy::member_type e = m_policy.end();
+
+#ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
+    KOKKOS_PRAGMA_IVDEP
+#endif
     for (typename Policy::member_type i = m_policy.begin(); i < e; ++i) {
       m_functor(t, i);
     }
