@@ -44,7 +44,7 @@ class ParallelScan<FunctorType, Kokkos::RangePolicy<Traits...>,
       reference_type update, const bool final) {
 #if defined(KOKKOS_ENABLE_AGGRESSIVE_VECTORIZATION) && \
     defined(KOKKOS_ENABLE_PRAGMA_IVDEP)
-#pragma ivdep
+    KOKKOS_PRAGMA_IVDEP
 #endif
     for (Member i = ibeg; i < iend; ++i) {
       functor(i, update, final);
@@ -58,7 +58,7 @@ class ParallelScan<FunctorType, Kokkos::RangePolicy<Traits...>,
     const TagType t{};
 #if defined(KOKKOS_ENABLE_AGGRESSIVE_VECTORIZATION) && \
     defined(KOKKOS_ENABLE_PRAGMA_IVDEP)
-#pragma ivdep
+    KOKKOS_PRAGMA_IVDEP
 #endif
     for (Member i = ibeg; i < iend; ++i) {
       functor(t, i, update, final);
@@ -124,7 +124,7 @@ class ParallelScanWithTotal<FunctorType, Kokkos::RangePolicy<Traits...>,
       reference_type update, const bool final) {
 #if defined(KOKKOS_ENABLE_AGGRESSIVE_VECTORIZATION) && \
     defined(KOKKOS_ENABLE_PRAGMA_IVDEP)
-#pragma ivdep
+    KOKKOS_PRAGMA_IVDEP
 #endif
     for (Member i = ibeg; i < iend; ++i) {
       functor(i, update, final);
@@ -138,7 +138,7 @@ class ParallelScanWithTotal<FunctorType, Kokkos::RangePolicy<Traits...>,
     const TagType t{};
 #if defined(KOKKOS_ENABLE_AGGRESSIVE_VECTORIZATION) && \
     defined(KOKKOS_ENABLE_PRAGMA_IVDEP)
-#pragma ivdep
+    KOKKOS_PRAGMA_IVDEP
 #endif
     for (Member i = ibeg; i < iend; ++i) {
       functor(t, i, update, final);

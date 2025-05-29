@@ -1826,7 +1826,7 @@ KOKKOS_INLINE_FUNCTION void parallel_for(
         &loop_boundaries,
     const Lambda &lambda) {
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
@@ -1858,7 +1858,7 @@ KOKKOS_INLINE_FUNCTION void parallel_reduce(
   wrapped_reducer.init(&value);
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
@@ -1912,7 +1912,7 @@ KOKKOS_INLINE_FUNCTION void parallel_reduce(
   wrapped_reducer.init(&value);
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
@@ -1991,7 +1991,7 @@ KOKKOS_INLINE_FUNCTION void parallel_scan(
   value_type scan_val = value_type();
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
@@ -2012,7 +2012,7 @@ parallel_scan(
   reducer.init(scan_val);
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {

@@ -198,6 +198,8 @@
 #endif
 #endif
 
+#define KOKKOS_PRAGMA_IVDEP _Pragma("ivdep")
+
 #if defined(_WIN32)
 #define KOKKOS_RESTRICT __restrict
 #else
@@ -263,9 +265,11 @@
 
 #if defined(KOKKOS_COMPILER_GNU)
 // #define KOKKOS_ENABLE_PRAGMA_UNROLL 1
-// #define KOKKOS_ENABLE_PRAGMA_IVDEP 1
+#define KOKKOS_ENABLE_PRAGMA_IVDEP 1
 // #define KOKKOS_ENABLE_PRAGMA_LOOPCOUNT 1
 // #define KOKKOS_ENABLE_PRAGMA_VECTOR 1
+
+#define KOKKOS_PRAGMA_IVDEP _Pragma("GCC ivdep")
 
 #if !defined(KOKKOS_IMPL_HOST_FORCEINLINE_FUNCTION)
 #define KOKKOS_IMPL_HOST_FORCEINLINE_FUNCTION \

@@ -53,7 +53,7 @@ struct AddFunctor {
 #pragma unroll
 #endif
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+    KOKKOS_PRAGMA_IVDEP
 #endif
 #ifdef KOKKOS_ENABLE_PRAGMA_VECTOR
 #pragma vector always

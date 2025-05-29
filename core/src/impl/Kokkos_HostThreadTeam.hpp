@@ -797,7 +797,7 @@ KOKKOS_INLINE_FUNCTION void parallel_for(
     std::enable_if_t<Impl::is_host_thread_team_member<Member>::value> const** =
         nullptr) {
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
@@ -1019,7 +1019,7 @@ KOKKOS_INLINE_FUNCTION
   ValueType scan_val = ValueType();
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
@@ -1054,7 +1054,7 @@ KOKKOS_INLINE_FUNCTION
   reducer.init(scan_val);
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {

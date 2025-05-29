@@ -963,7 +963,7 @@ KOKKOS_INLINE_FUNCTION void parallel_for(
         iType, Impl::ThreadsExecTeamMember>& loop_boundaries,
     const Lambda& lambda) {
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment)
@@ -1046,7 +1046,7 @@ KOKKOS_INLINE_FUNCTION void parallel_scan(
 
   // Intra-member scan
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_bounds.start; i < loop_bounds.end;
        i += loop_bounds.increment) {
@@ -1059,7 +1059,7 @@ KOKKOS_INLINE_FUNCTION void parallel_scan(
   scan_val = team_member.team_scan(scan_val);
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_bounds.start; i < loop_bounds.end;
        i += loop_bounds.increment) {
@@ -1112,7 +1112,7 @@ KOKKOS_INLINE_FUNCTION void parallel_scan(
   ValueType scan_val = ValueType();
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
@@ -1148,7 +1148,7 @@ parallel_scan(const Impl::ThreadVectorRangeBoundariesStruct<
   reducer.init(scan_val);
 
 #ifdef KOKKOS_ENABLE_PRAGMA_IVDEP
-#pragma ivdep
+  KOKKOS_PRAGMA_IVDEP
 #endif
   for (iType i = loop_boundaries.start; i < loop_boundaries.end;
        i += loop_boundaries.increment) {
