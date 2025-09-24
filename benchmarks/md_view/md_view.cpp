@@ -121,7 +121,6 @@ struct S {
     }
   }
 
-  // Function to calculate required scratch memory size
   size_t team_shmem_size(int teamSize) const {
     return ScratchView::shmem_size(total_size() * teamSize);
   }
@@ -133,6 +132,7 @@ int main(int argc, char* argv[]) {
     const int n              = Kokkos::DefaultExecutionSpace{}.concurrency();
     constexpr int iterations = 100000;
 
+    // header
     std::cout << "========================================\n";
     std::cout << "Multidimensional View Index Benchmark\n";
     std::cout << "========================================\n";
