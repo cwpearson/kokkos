@@ -3,6 +3,7 @@ kokkos_add_benchmark_directories(atomic)
 kokkos_add_benchmark_directories(gather)
 kokkos_add_benchmark_directories(gups)
 kokkos_add_benchmark_directories(launch_latency)
+kokkos_add_benchmark_directories(md_view)
 kokkos_add_benchmark_directories(stream)
 kokkos_add_benchmark_directories(view_copy_constructor)
 #FIXME_OPENMPTARGET - These two benchmarks cause ICE. Commenting them for now but a deeper analysis on the cause and a possible fix will follow.
