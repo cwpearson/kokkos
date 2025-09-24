@@ -116,7 +116,7 @@ struct S {
         }
       }
     }
-    if (i < output_.size()) {
+    if (size_t(i) < output_.size()) {
       output_(i) = sum;
     }
   }
