@@ -28,6 +28,7 @@
  */
 
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 
 #include <Kokkos_Core.hpp>
