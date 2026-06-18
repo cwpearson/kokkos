@@ -1,0 +1,8 @@
+kokkos_core_unit_test_generate_backend_sources(Threads)
+
+# FIXME_NEXTSILICON: requires parallel_for
+if(Kokkos_ENABLE_IMPL_MDSPAN AND NOT KOKKOS_ENABLE_NEXTSILICON)
+  kokkos_add_executable_and_test(CoreUnitTest_Threads_ViewSupport SOURCES UnitTestMainInit.cpp ${Threads_VIEWSUPPORT})
+endif()
+kokkos_add_executable_and_test(CoreUnitTest_Threads_SmokeTest SOURCES UnitTestMainInit.cpp ${Threads_SOURCES_SMOKE})
+kokkos_add_executable_and_test(CoreUnitTest_Threads SOURCES ${Threads_SOURCES} UnitTestMainInit.cpp)

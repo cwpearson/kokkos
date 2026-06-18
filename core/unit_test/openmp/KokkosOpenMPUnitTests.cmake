@@ -1,0 +1,9 @@
+kokkos_core_unit_test_generate_backend_sources(OpenMP)
+
+# FIXME_NEXTSILICON: requires parallel_for
+if(Kokkos_ENABLE_IMPL_MDSPAN AND NOT KOKKOS_ENABLE_NEXTSILICON)
+  kokkos_add_executable_and_test(CoreUnitTest_OpenMP_ViewSupport SOURCES UnitTestMainInit.cpp ${OpenMP_VIEWSUPPORT})
+endif()
+kokkos_add_executable_and_test(CoreUnitTest_OpenMP_SmokeTest SOURCES UnitTestMainInit.cpp ${OpenMP_SOURCES_SMOKE})
+kokkos_add_executable_and_test(CoreUnitTest_OpenMP SOURCES UnitTestMainInit.cpp ${OpenMP_SOURCES})
+kokkos_add_executable_and_test(CoreUnitTest_OpenMPInterOp SOURCES UnitTestMain.cpp openmp/TestOpenMP_InterOp.cpp)
