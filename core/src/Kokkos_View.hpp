@@ -188,18 +188,6 @@ struct BasicViewFromTraits<ElementType, extents<IndexType, Extents...>,
   static constexpr bool mdspan_style_args = true;
 };
 
-// Helper function to deal with cases where the data handle is
-// not convertible to element_type* such as in Sacado.
-// An overload for our reference counted data handle is next to its
-// implementation. This one covers Unmanaged views with raw pointers.
-template <class HandleType>
-KOKKOS_INLINE_FUNCTION constexpr auto ptr_from_data_handle(
-    const HandleType& handle) {
-  // This should only be internally invoked in Kokkos with raw pointers.
-  static_assert(std::is_pointer_v<HandleType>);
-  return handle;
-}
-
 template <class LView, class RView, size_t... I>
 KOKKOS_INLINE_FUNCTION constexpr bool view_equal_extents_impl(
     const LView& lhs, const RView& rhs, std::index_sequence<I...>) {
@@ -600,7 +588,8 @@ class View
     Kokkos::Impl::runtime_check_memory_access_violation<memory_space>(         \
         m_ptr.tracker());                                                      \
     Kokkos::Impl::view_verify_operator_bounds(                                 \
-        m_ptr.tracker(), m_map.extents(), m_ptr.get(), __VA_ARGS__);           \
+        m_ptr.tracker(), m_map.extents(),                                      \
+        Kokkos::Impl::ptr_from_data_handle(m_ptr), __VA_ARGS__);               \
   } else {                                                                     \
     Kokkos::Impl::runtime_check_memory_access_violation<memory_space>(         \
         Kokkos::Impl::SharedAllocationTracker());                              \

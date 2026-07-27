@@ -30,7 +30,8 @@ static_assert(false,
     Kokkos::Impl::runtime_check_memory_access_violation<memory_space>(         \
         m_ptr.tracker());                                                      \
     Kokkos::Impl::view_verify_operator_bounds(                                 \
-        m_ptr.tracker(), m_map.extents(), m_ptr.get(), __VA_ARGS__);           \
+        m_ptr.tracker(), m_map.extents(),                                      \
+        Kokkos::Impl::ptr_from_data_handle(m_ptr), __VA_ARGS__);               \
   } else {                                                                     \
     Kokkos::Impl::runtime_check_memory_access_violation<memory_space>(         \
         Kokkos::Impl::SharedAllocationTracker());                              \
