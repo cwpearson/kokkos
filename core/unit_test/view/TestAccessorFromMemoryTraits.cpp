@@ -82,6 +82,27 @@ constexpr bool test_equivalence() {
   return true;
 }
 
+using memory_scope = desul::MemoryScopeCore;
+
+// Check that CheckedRelaxedAtomicAccessor preserves memory scope.
+static_assert(std::is_same_v<
+              Kokkos::Impl::CheckedRelaxedAtomicAccessor<
+                  float, Kokkos::HostSpace, memory_scope>,
+              Kokkos::Impl::SpaceAwareAccessor<
+                  Kokkos::HostSpace,
+                  Kokkos::Impl::AtomicAccessorRelaxed<float, memory_scope>>>);
+// Check that CheckedReferenceCountedRelaxedAtomicAccessor preserves memory
+// scope.
+static_assert(
+    std::is_same_v<
+        Kokkos::Impl::CheckedReferenceCountedRelaxedAtomicAccessor<
+            float, Kokkos::HostSpace, memory_scope>,
+        Kokkos::Impl::SpaceAwareAccessor<
+            Kokkos::HostSpace,
+            Kokkos::Impl::ReferenceCountedAccessor<
+                float, Kokkos::HostSpace,
+                Kokkos::Impl::AtomicAccessorRelaxed<float, memory_scope>>>>);
+
 static_assert(test_equivalence<float, Kokkos::DefaultExecutionSpace>());
 static_assert(
     test_equivalence<const float, Kokkos::DefaultHostExecutionSpace>());
