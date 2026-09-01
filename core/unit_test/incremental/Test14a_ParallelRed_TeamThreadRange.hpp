@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
 
-// @Kokkos_Feature_Level_Required:13
+// @Kokkos_Feature_Level_Required:14
 // Unit test for hierarchical parallelism
 // Create concurrent work hierarchically and verify if
 // sum of created processing units corresponds to expected value
@@ -14,12 +14,14 @@ import kokkos.core;
 #include <Kokkos_Core.hpp>
 #endif
 
+// Degrees of concurrency per nesting level
+
 using SCALAR_TYPE = int;
 
 namespace Test {
 
 template <class ExecSpace>
-struct Hierarchical_Red_B {
+struct Hierarchical_Red_A {
   void run(const int pN, const int sX) {
     using team_policy = Kokkos::TeamPolicy<ExecSpace>;
     using member_type = typename Kokkos::TeamPolicy<ExecSpace>::member_type;
@@ -34,7 +36,7 @@ struct Hierarchical_Red_B {
           SCALAR_TYPE out = 0;
 
           Kokkos::parallel_reduce(
-              Kokkos::TeamVectorRange(team, sX),
+              Kokkos::TeamThreadRange(team, sX),
               [=](const int i, SCALAR_TYPE &tmp) {
                 tmp += n * v.extent(0) + i;
               },
@@ -50,14 +52,15 @@ struct Hierarchical_Red_B {
     SCALAR_TYPE ref   = 0;
     for (int i = 0; i < pN; ++i) {
       check += v_H(i);
-      ref += ((sX + i * pN) * (sX + i * pN - 1) - (i * pN * (i * pN - 1))) / 2;
+      ref +=
+          (sX + i * pN) * (sX + i * pN - 1) / 2 - ((i * pN) * (i * pN - 1) / 2);
     }
     ASSERT_EQ(check, ref);
   }
 };
 
-TEST(TEST_CATEGORY, IncrTest_13b_Hierarchical_Red) {
-  Hierarchical_Red_B<TEST_EXECSPACE> test;
+TEST(TEST_CATEGORY, IncrTest_14a_Hierarchical_Red) {
+  Hierarchical_Red_A<TEST_EXECSPACE> test;
   test.run(4, 16);
   test.run(2, 39);
   test.run(39, 3);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
 
-// @Kokkos_Feature_Level_Required:12
+// @Kokkos_Feature_Level_Required:13
 // Unit test for hierarchical parallelism
 // Create concurrent work hierarchically and verify if
 // contributions of paticipating processing units corresponds to expected value
@@ -71,7 +71,7 @@ struct ThreadScratch {
     v = data_t("Matrix", pN, max_team_size);
 
     Kokkos::parallel_for(
-        "Test12a_ThreadScratch",
+        "Test13a_ThreadScratch",
         policy_t(pN, max_team_size)
             .set_scratch_size(scratch_level, Kokkos::PerThread(scratchSize)),
         *this);
@@ -90,7 +90,7 @@ struct ThreadScratch {
 };
 
 KOKKOS_IMPL_DISABLE_UNREACHABLE_WARNINGS_PUSH()
-TEST(TEST_CATEGORY, IncrTest_12a_ThreadScratch) {
+TEST(TEST_CATEGORY, IncrTest_13a_ThreadScratch) {
 #ifdef KOKKOS_ENABLE_OPENACC  // FIXME_OPENACC
   GTEST_SKIP() << "skipping since scratch memory is not yet implemented in the "
                   "OpenACC backend";

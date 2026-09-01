@@ -11,7 +11,7 @@ import kokkos.core;
 #include <random>
 #include <gtest/gtest.h>
 
-/// @Kokkos_Feature_Level_Required:17
+/// @Kokkos_Feature_Level_Required:18
 // Incremental test for atomic views.
 // In this test we sort N integers into num_buckets number of buckets based on
 // their rermainder, i.e., a histogram based on remainder. Since the number of

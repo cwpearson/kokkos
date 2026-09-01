@@ -9,7 +9,7 @@ import kokkos.core;
 #endif
 #include <gtest/gtest.h>
 
-/// @Kokkos_Feature_Level_Required:16
+/// @Kokkos_Feature_Level_Required:17
 // Incremental test for parallel_scan.
 // perform scan on a 1D view of double's and check for correctness.
 
@@ -132,7 +132,7 @@ struct TestScanWithTotal {
   }
 };
 
-TEST(TEST_CATEGORY, IncrTest_16_parallelscan) {
+TEST(TEST_CATEGORY, IncrTest_17_parallelscan) {
   TestScan<TEST_EXECSPACE> test;
   test.parallel_scan<TrivialScanFunctor<TEST_EXECSPACE>>();
   test.parallel_scan<NonTrivialScanFunctor<TEST_EXECSPACE>>();

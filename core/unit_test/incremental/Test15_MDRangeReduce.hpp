@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
 
-/// @Kokkos_Feature_Level_Required:14
+/// @Kokkos_Feature_Level_Required:15
 // Incremental test for MDRange reduction .
 // Reduction is tested with scalar, view and a customized reduction.
 

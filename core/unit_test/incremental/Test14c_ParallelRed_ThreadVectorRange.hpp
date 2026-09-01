@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // SPDX-FileCopyrightText: Copyright Contributors to the Kokkos project
 
-// @Kokkos_Feature_Level_Required:13
+// @Kokkos_Feature_Level_Required:14
 // Unit test for hierarchical parallelism
 // Create concurrent work hierarchically and verify if
 // sum of created processing units corresponds to expected value
@@ -66,7 +66,7 @@ struct Hierarchical_Red_C {
   }
 };
 
-TEST(TEST_CATEGORY, IncrTest_13c_Hierarchical_Red) {
+TEST(TEST_CATEGORY, IncrTest_14c_Hierarchical_Red) {
   Hierarchical_Red_C<TEST_EXECSPACE> test;
   test.run(1, 4, 8);
   test.run(2, 39, 12);
