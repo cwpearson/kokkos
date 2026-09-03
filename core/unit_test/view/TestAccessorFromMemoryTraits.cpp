@@ -69,6 +69,17 @@ constexpr bool test_equivalence() {
           Kokkos::Impl::MemoryTraitsFromAccessor<Kokkos::Experimental::Accessor<
               T, Space, Kokkos::MemoryTraits<Kokkos::Unmanaged>>>,
           Kokkos::MemoryTraits<Kokkos::Unmanaged>>);
+  // RestrictAccessor reports both Unmanaged and Restrict traits.
+  static_assert(std::is_same_v<
+                Kokkos::Impl::MemoryTraitsFromAccessor<
+                    Kokkos::Impl::RestrictAccessor<T>>,
+                Kokkos::MemoryTraits<Kokkos::Unmanaged | Kokkos::Restrict>>);
+  // ReferenceCountedAccessor removes Unmanaged and preserves Restrict.
+  static_assert(std::is_same_v<Kokkos::Impl::MemoryTraitsFromAccessor<
+                                   Kokkos::Impl::ReferenceCountedAccessor<
+                                       typename Space::memory_space,
+                                       Kokkos::Impl::RestrictAccessor<T>>>,
+                               Kokkos::MemoryTraits<Kokkos::Restrict>>);
   static_assert(
       std::is_same_v<
           Kokkos::Impl::MemoryTraitsFromAccessor<Kokkos::Experimental::Accessor<
