@@ -625,35 +625,42 @@ struct ViewArgsToAccessor {
   using memory_space = typename Space::memory_space;
 
   KOKKOS_FUNCTION
-  constexpr static auto impl_type()
-    requires(!MemTraits::is_unmanaged && !MemTraits::is_atomic)
+  constexpr static auto access_semantics()
+    requires(MemTraits::is_atomic)
   {
-    return std::type_identity<
-        CheckedReferenceCountedAccessor<ElementType, memory_space>>();
+    return std::type_identity<AtomicAccessorRelaxed<ElementType>>();
+  }
+
+  KOKKOS_FUNCTION
+  constexpr static auto access_semantics()
+    requires(!MemTraits::is_atomic && MemTraits::is_restrict)
+  {
+    return std::type_identity<RestrictAccessor<ElementType>>();
+  }
+
+  KOKKOS_FUNCTION
+  constexpr static auto access_semantics()
+    requires(!MemTraits::is_atomic && !MemTraits::is_restrict)
+  {
+    return std::type_identity<default_accessor<ElementType>>();
+  }
+
+  using leaf_accessor = typename decltype(access_semantics())::type;
+
+  KOKKOS_FUNCTION
+  constexpr static auto impl_type()
+    requires(!MemTraits::is_unmanaged)
+  {
+    return std::type_identity<SpaceAwareAccessor<
+        memory_space, ReferenceCountedAccessor<memory_space, leaf_accessor>>>();
   }
 
   KOKKOS_FUNCTION
   constexpr static auto impl_type()
-    requires(!MemTraits::is_unmanaged && MemTraits::is_atomic)
-  {
-    return std::type_identity<CheckedReferenceCountedRelaxedAtomicAccessor<
-        ElementType, memory_space>>();
-  }
-
-  KOKKOS_FUNCTION
-  constexpr static auto impl_type()
-    requires(MemTraits::is_unmanaged && !MemTraits::is_atomic)
+    requires(MemTraits::is_unmanaged)
   {
     return std::type_identity<
-        SpaceAwareAccessor<memory_space, default_accessor<ElementType>>>();
-  }
-
-  KOKKOS_FUNCTION
-  constexpr static auto impl_type()
-    requires(MemTraits::is_unmanaged && MemTraits::is_atomic)
-  {
-    return std::type_identity<
-        CheckedRelaxedAtomicAccessor<ElementType, memory_space>>();
+        SpaceAwareAccessor<memory_space, leaf_accessor>>();
   }
 
  public:

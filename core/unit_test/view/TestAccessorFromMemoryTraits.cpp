@@ -49,6 +49,34 @@ constexpr bool test_equivalence() {
                 Kokkos::Impl::SpaceAwareAccessor<typename Space::memory_space,
                                                  Kokkos::default_accessor<T>>>);
   static_assert(
+      std::is_same_v<Kokkos::Experimental::Accessor<
+                         T, Space, Kokkos::MemoryTraits<Kokkos::Restrict>>,
+                     Kokkos::Impl::SpaceAwareAccessor<
+                         typename Space::memory_space,
+                         Kokkos::Impl::ReferenceCountedAccessor<
+                             typename Space::memory_space,
+                             Kokkos::Impl::RestrictAccessor<T>>>>);
+  static_assert(
+      std::is_same_v<
+          Kokkos::Experimental::Accessor<
+              T, Space,
+              Kokkos::MemoryTraits<Kokkos::Unmanaged | Kokkos::Restrict>>,
+          Kokkos::Impl::SpaceAwareAccessor<typename Space::memory_space,
+                                           Kokkos::Impl::RestrictAccessor<T>>>);
+  static_assert(std::is_same_v<
+                Kokkos::Experimental::Accessor<
+                    T, Space,
+                    Kokkos::MemoryTraits<Kokkos::Atomic | Kokkos::Restrict>>,
+                Kokkos::Impl::CheckedReferenceCountedRelaxedAtomicAccessor<
+                    T, typename Space::memory_space>>);
+  static_assert(std::is_same_v<
+                Kokkos::Experimental::Accessor<
+                    T, Space,
+                    Kokkos::MemoryTraits<Kokkos::Unmanaged | Kokkos::Atomic |
+                                         Kokkos::Restrict>>,
+                Kokkos::Impl::CheckedRelaxedAtomicAccessor<
+                    T, typename Space::memory_space>>);
+  static_assert(
       std::is_same_v<
           Kokkos::Experimental::Accessor<
               T, Space,
@@ -83,8 +111,32 @@ constexpr bool test_equivalence() {
   static_assert(
       std::is_same_v<
           Kokkos::Impl::MemoryTraitsFromAccessor<Kokkos::Experimental::Accessor<
+              T, Space, Kokkos::MemoryTraits<Kokkos::Restrict>>>,
+          Kokkos::MemoryTraits<Kokkos::Restrict>>);
+  static_assert(
+      std::is_same_v<
+          Kokkos::Impl::MemoryTraitsFromAccessor<Kokkos::Experimental::Accessor<
+              T, Space,
+              Kokkos::MemoryTraits<Kokkos::Unmanaged | Kokkos::Restrict>>>,
+          Kokkos::MemoryTraits<Kokkos::Unmanaged | Kokkos::Restrict>>);
+  static_assert(
+      std::is_same_v<
+          Kokkos::Impl::MemoryTraitsFromAccessor<Kokkos::Experimental::Accessor<
               T, Space, Kokkos::MemoryTraits<Kokkos::Atomic>>>,
           Kokkos::MemoryTraits<Kokkos::Atomic>>);
+  static_assert(
+      std::is_same_v<
+          Kokkos::Impl::MemoryTraitsFromAccessor<Kokkos::Experimental::Accessor<
+              T, Space,
+              Kokkos::MemoryTraits<Kokkos::Atomic | Kokkos::Restrict>>>,
+          Kokkos::MemoryTraits<Kokkos::Atomic>>);
+  static_assert(
+      std::is_same_v<
+          Kokkos::Impl::MemoryTraitsFromAccessor<Kokkos::Experimental::Accessor<
+              T, Space,
+              Kokkos::MemoryTraits<Kokkos::Unmanaged | Kokkos::Atomic |
+                                   Kokkos::Restrict>>>,
+          Kokkos::MemoryTraits<Kokkos::Unmanaged | Kokkos::Atomic>>);
   // RandomAccess is dropped, since no accessor currently implements this
   static_assert(
       std::is_same_v<
