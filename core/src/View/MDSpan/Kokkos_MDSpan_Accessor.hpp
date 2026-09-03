@@ -351,7 +351,6 @@ class ReferenceCountedDataHandle {
  public:
   using value_type              = ElementType;
   using pointer                 = value_type*;
-  using reference               = value_type&;
   using memory_space            = MemorySpace;
   using nested_data_handle_type = NestedDataHandle;
 
