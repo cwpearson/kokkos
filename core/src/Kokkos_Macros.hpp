@@ -249,6 +249,12 @@
 #define KOKKOS_IMPL_ALIGN_PTR(size) __attribute__((aligned(size)))
 #endif
 
+#if defined(__has_cpp_attribute)
+#if __has_cpp_attribute(next::assume_noalias)
+#define KOKKOS_IMPL_NEXT_ASSUME_NOALIAS [[next::assume_noalias]]
+#endif
+#endif
+
 #endif
 
 //----------------------------------------------------------------------------
@@ -283,6 +289,10 @@
 #define KOKKOS_IMPL_FORCEINLINE_ATTRIBUTE
 #endif
 
+#endif
+
+#if !defined(KOKKOS_IMPL_NEXT_ASSUME_NOALIAS)
+#define KOKKOS_IMPL_NEXT_ASSUME_NOALIAS
 #endif
 
 #if !defined(KOKKOS_IMPL_HOST_FORCEINLINE_FUNCTION)
