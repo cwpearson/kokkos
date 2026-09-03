@@ -28,7 +28,6 @@ using const_data_handle_anonym_t =
 
 TEST(TEST_CATEGORY, RefCountedDataHandle_Typedefs) {
   static_assert(std::is_same_v<data_handle_t::value_type, element_t>);
-  static_assert(std::is_same_v<data_handle_t::pointer, element_t*>);
   static_assert(std::is_same_v<data_handle_t::memory_space, mem_t>);
 }
 
@@ -49,9 +48,10 @@ void test_ref_counted_data_handle() {
   ASSERT_EQ(dh.get(), ptr);
   ASSERT_EQ(dh.has_record(), true);
   {
-    element_t* ptr_tmp(dh);
+    element_t* ptr_tmp = Kokkos::Impl::ptr_from_data_handle(dh);
     ASSERT_EQ(ptr_tmp, ptr);
     static_assert(!std::is_convertible_v<data_handle_t, element_t*>);
+    static_assert(!std::is_constructible_v<element_t*, data_handle_t>);
   }
   {
     ConstDataHandleType c_dh(dh);
@@ -70,7 +70,7 @@ void test_ref_counted_data_handle() {
   ASSERT_EQ(dh_offset.get_label(), std::string("Test"));
   ASSERT_EQ(dh_offset.has_record(), true);
   {
-    element_t* ptr_tmp(dh_offset);
+    element_t* ptr_tmp = Kokkos::Impl::ptr_from_data_handle(dh_offset);
     ASSERT_EQ(ptr_tmp, ptr + 5);
   }
   Kokkos::View<int, TEST_EXECSPACE> errors("Errors");

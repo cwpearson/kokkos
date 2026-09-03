@@ -348,9 +348,10 @@ KOKKOS_INLINE_FUNCTION constexpr auto ptr_from_data_handle(
 template <class ElementType, class MemorySpace,
           class NestedDataHandle = ElementType*>
 class ReferenceCountedDataHandle {
+  using raw_allocation_pointer = ElementType*;
+
  public:
   using value_type              = ElementType;
-  using pointer                 = value_type*;
   using memory_space            = MemorySpace;
   using nested_data_handle_type = NestedDataHandle;
 
@@ -360,8 +361,8 @@ class ReferenceCountedDataHandle {
   // this only ever works on host
   explicit ReferenceCountedDataHandle(SharedAllocationRecord<void, void>* rec) {
     m_tracker.assign_allocated_record_to_uninitialized(rec);
-    m_handle =
-        nested_data_handle_type(static_cast<pointer>(get_record()->data()));
+    m_handle = nested_data_handle_type(
+        static_cast<raw_allocation_pointer>(get_record()->data()));
   }
 
   KOKKOS_FUNCTION
@@ -418,10 +419,6 @@ class ReferenceCountedDataHandle {
 
   KOKKOS_FUNCTION
   nested_data_handle_type get() const noexcept { return m_handle; }
-  KOKKOS_FUNCTION
-  explicit operator pointer() const noexcept {
-    return ptr_from_data_handle(m_handle);
-  }
 
   bool has_record() const { return m_tracker.has_record(); }
   auto* get_record() const { return m_tracker.get_record<memory_space>(); }

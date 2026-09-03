@@ -923,8 +923,7 @@ class View
           // better error messages before mdspan diagnoses problems
           base_t::check_basic_view_constructibility(other.mapping());
           return base_t(
-              static_cast<typename mdspan_type::data_handle_type>(
-                  other.data_handle()),
+              base_t::construct_data_handle(other.data_handle()),
               static_cast<typename mdspan_type::mapping_type>(other.mapping()),
               static_cast<typename mdspan_type::accessor_type>(
                   other.accessor()));

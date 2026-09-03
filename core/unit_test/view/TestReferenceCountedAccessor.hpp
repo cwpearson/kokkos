@@ -197,7 +197,7 @@ TEST(TEST_CATEGORY, RefCountedAcc_NestedHandleAccessAndOffset) {
   typename nested_acc_t::data_handle_type handle(shared_alloc);
   ASSERT_EQ(handle.use_count(), 1);
   ASSERT_EQ(handle.get().ptr, ptr);
-  element_t* raw_ptr(handle);
+  element_t* raw_ptr = Kokkos::Impl::ptr_from_data_handle(handle);
   ASSERT_EQ(raw_ptr, ptr);
 
   nested_acc_t accessor;

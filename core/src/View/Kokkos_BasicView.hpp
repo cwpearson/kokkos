@@ -240,6 +240,27 @@ class BasicView {
     }
   }
 
+  template <class TargetDataHandleType, class OtherDataHandleType>
+  KOKKOS_INLINE_FUNCTION static constexpr TargetDataHandleType
+  construct_data_handle_as(const OtherDataHandleType &other) {
+    if constexpr (std::is_constructible_v<TargetDataHandleType,
+                                          const OtherDataHandleType &>) {
+      return TargetDataHandleType(other);
+    } else {
+      using raw_pointer_type = decltype(Impl::ptr_from_data_handle(other));
+      static_assert(
+          std::is_constructible_v<TargetDataHandleType, raw_pointer_type>,
+          "Kokkos::View: incompatible data_handle_type for View construction");
+      return TargetDataHandleType(Impl::ptr_from_data_handle(other));
+    }
+  }
+
+  template <class OtherDataHandleType>
+  KOKKOS_INLINE_FUNCTION static constexpr data_handle_type construct_data_handle(
+      const OtherDataHandleType &other) {
+    return construct_data_handle_as<data_handle_type>(other);
+  }
+
  public:
   KOKKOS_DEFAULTED_FUNCTION constexpr BasicView() = default;
 
@@ -291,14 +312,12 @@ class BasicView {
       !std::is_convertible_v<const OtherA &, accessor_type>)
       KOKKOS_INLINE_FUNCTION
       BasicView(const BasicView<OtherT, OtherE, OtherL, OtherA> &other)
-      : m_ptr(other.m_ptr), m_map(other.m_map), m_acc(other.m_acc) {
+      : m_ptr(construct_data_handle(other.m_ptr)),
+        m_map(other.m_map),
+        m_acc(other.m_acc) {
     // Kokkos View precondition checks happen in release builds
     check_basic_view_constructibility(other.mapping());
 
-    static_assert(
-        std::is_constructible_v<data_handle_type,
-                                const typename OtherA::data_handle_type &>,
-        "Kokkos::View: incompatible data_handle_type for View construction");
     static_assert(std::is_constructible_v<extents_type, OtherE>,
                   "Kokkos::View: incompatible extents for View construction");
   }
@@ -604,8 +623,8 @@ class BasicView {
     // Explicit cast is needed because submdspan_mapping may return a different
     // layout type.
     using sub_accessor_t = typename OtherAccessorPolicy::offset_policy;
-    m_ptr                = static_cast<data_handle_type>(
-        src_view.m_acc.offset(src_view.m_ptr, sub_mapping_result.offset));
+    m_ptr                = construct_data_handle(src_view.m_acc.offset(
+        src_view.m_ptr, sub_mapping_result.offset));
     m_map = mapping_type(sub_mapping_result.mapping);
     m_acc = sub_accessor_t(src_view.m_acc);
 
@@ -639,7 +658,14 @@ class BasicView {
   KOKKOS_INLINE_FUNCTION constexpr
   operator mdspan<OtherElementType, OtherExtents, OtherLayoutPolicy,
                   OtherAccessor>() const {
-    return mdspan_type(m_ptr, m_map, m_acc);
+    using ret_mdspan_type =
+        mdspan<OtherElementType, OtherExtents, OtherLayoutPolicy,
+               OtherAccessor>;
+    return ret_mdspan_type(
+        construct_data_handle_as<typename ret_mdspan_type::data_handle_type>(
+            m_ptr),
+        static_cast<typename ret_mdspan_type::mapping_type>(m_map),
+        static_cast<OtherAccessor>(m_acc));
   }
 
   // Here we use an overload instead of a default parameter as a workaround
@@ -655,7 +681,7 @@ class BasicView {
                typename mdspan_type::extents_type,
                typename mdspan_type::layout_type, OtherAccessorType>;
     return ret_mdspan_type(
-        static_cast<typename OtherAccessorType::data_handle_type>(
+        construct_data_handle_as<typename OtherAccessorType::data_handle_type>(
             data_handle()),
         mapping(), static_cast<OtherAccessorType>(accessor()));
   }
@@ -669,7 +695,7 @@ class BasicView {
     using ret_mdspan_type =
         mdspan<element_type, extents_type, layout_type, OtherAccessorType>;
     return ret_mdspan_type(
-        static_cast<typename OtherAccessorType::data_handle_type>(
+        construct_data_handle_as<typename OtherAccessorType::data_handle_type>(
             data_handle()),
         mapping(), other_accessor);
   }
