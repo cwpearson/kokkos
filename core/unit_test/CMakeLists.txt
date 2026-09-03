@@ -822,6 +822,9 @@ if(Kokkos_ENABLE_NEXTSILICON)
   kokkos_add_executable_and_test(
     CoreUnitTest_NextSiliconInitializationCallbacks SOURCES nextsilicon/TestNextSilicon_InitializationCallbacks.cpp
   )
+  kokkos_add_executable_and_test(
+    CoreUnitTest_NextSiliconRestrict SOURCES nextsilicon/TestNextSilicon_Restrict.cpp
+  )
 endif()
 
 set(DEFAULT_DEVICE_SOURCES
