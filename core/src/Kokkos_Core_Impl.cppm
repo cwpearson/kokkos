@@ -54,6 +54,7 @@ export {
   using ::Kokkos::Impl::RankDataType;
   using ::Kokkos::Impl::ReferenceCountedAccessor;
   using ::Kokkos::Impl::ReferenceCountedDataHandle;
+  using ::Kokkos::Impl::RestrictAccessor;
   using ::Kokkos::Impl::runtime_check_memory_access_violation;
   using ::Kokkos::Impl::SharedAllocationHeader;
   using ::Kokkos::Impl::SharedAllocationRecord;
