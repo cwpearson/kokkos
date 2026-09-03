@@ -206,6 +206,18 @@ TEST(TEST_CATEGORY, RefCountedAcc_NestedHandleAccessAndOffset) {
   EXPECT_EQ(offset_handle.use_count(), 2);
   EXPECT_EQ(offset_handle.get_record(), handle.get_record());
 
+  using view_t =
+      Kokkos::Impl::BV::BasicView<element_t, Kokkos::dextents<size_t, 1>,
+                                  Kokkos::layout_right_padded<>, nested_acc_t>;
+  view_t view(handle, typename view_t::mapping_type(view_t::extents_type(100)),
+              accessor);
+  EXPECT_EQ(view.size(), 100u);
+  EXPECT_FALSE(view.empty());
+
+  view_t default_constructed_view;
+  EXPECT_EQ(default_constructed_view.size(), 0u);
+  EXPECT_TRUE(default_constructed_view.empty());
+
   Kokkos::View<int, TEST_EXECSPACE> errors("Errors");
   Kokkos::parallel_for(
       Kokkos::RangePolicy<TEST_EXECSPACE>(0, 1), KOKKOS_LAMBDA(int) {

@@ -741,12 +741,12 @@ class BasicView {
   template <size_t... Idxs>
   KOKKOS_FUNCTION constexpr size_type size_impl(
       std::index_sequence<Idxs...>) const noexcept {
-    // Note we restrict data_handle to be convertible to element_type* for now.
+    // Note we restrict data_handle to be unwrappable to element_type* for now.
     // This is also different from mdspan: mdspan can NOT be legally in a state
     // where m_ptr is nullptr and the product of extents is non-zero
     // The default constructor of mdspan is constrained to dynamic_rank > 0
     // For View we do not have that constraint today
-    if (data_handle() == nullptr) return 0u;
+    if (Impl::ptr_from_data_handle(data_handle()) == nullptr) return 0u;
     return ((static_cast<size_type>(m_map.extents().extent(Idxs))) * ... *
             size_type(1));
   }
@@ -761,12 +761,12 @@ class BasicView {
   template <size_t... Idxs>
   KOKKOS_FUNCTION constexpr bool empty_impl(
       std::index_sequence<Idxs...>) const noexcept {
-    // Note we restrict data_handle to be convertible to element_type* for now.
+    // Note we restrict data_handle to be unwrappable to element_type* for now.
     // This is also different from mdspan: mdspan can NOT be legally in a state
     // where m_ptr is nullptr and the product of extents is non-zero
     // The default constructor of mdspan is constrained to dynamic_rank > 0
     // For View we do not have that constraint today
-    if (data_handle() == nullptr) return true;
+    if (Impl::ptr_from_data_handle(data_handle()) == nullptr) return true;
     return (rank() > 0) &&
            ((m_map.extents().extent(Idxs) == index_type(0)) || ... || false);
   }
