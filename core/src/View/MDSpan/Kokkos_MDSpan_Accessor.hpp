@@ -428,18 +428,6 @@ class ReferenceCountedDataHandle {
   KOKKOS_FUNCTION
   const SharedAllocationTracker& tracker() const noexcept { return m_tracker; }
 
-  KOKKOS_FUNCTION
-  friend bool operator==(const ReferenceCountedDataHandle& lhs,
-                         const value_type* rhs) {
-    return lhs.m_handle == rhs;
-  }
-
-  KOKKOS_FUNCTION
-  friend bool operator==(const value_type* lhs,
-                         const ReferenceCountedDataHandle& rhs) {
-    return lhs == rhs.m_handle;
-  }
-
  private:
   template <class OtherElementType, class OtherSpace,
             class OtherNestedDataHandle>

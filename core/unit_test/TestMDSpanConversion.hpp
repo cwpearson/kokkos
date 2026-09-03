@@ -101,7 +101,7 @@ struct TestViewMDSpanConversion {
     // test conversion operator to natural mdspan
     {
       natural_mdspan_type cvt = v;
-      ASSERT_EQ(cvt.data_handle(), v.data());
+      ASSERT_EQ(Kokkos::Impl::ptr_from_data_handle(cvt.data_handle()), v.data());
       ASSERT_EQ(cvt.mapping(), ref_layout_mapping);
 
       if constexpr (!is_strided_layout && natural_mdspan_type::rank() > 1) {
@@ -112,7 +112,7 @@ struct TestViewMDSpanConversion {
     {
       auto cvt = v.to_mdspan();
       static_assert(std::is_same_v<natural_mdspan_type, decltype(cvt)>);
-      ASSERT_EQ(cvt.data_handle(), v.data());
+      ASSERT_EQ(Kokkos::Impl::ptr_from_data_handle(cvt.data_handle()), v.data());
       ASSERT_EQ(cvt.mapping(), ref_layout_mapping);
     }
     // test conversion operator to different mdspan type
@@ -127,7 +127,7 @@ struct TestViewMDSpanConversion {
                            natural_mdspan_type::rank()>,
           typename natural_mdspan_type::layout_type, const_acc_type>;
       mdspan_type cvt = v;
-      ASSERT_EQ(cvt.data_handle(), v.data());
+      ASSERT_EQ(Kokkos::Impl::ptr_from_data_handle(cvt.data_handle()), v.data());
       ASSERT_EQ(cvt.mapping(), ref_layout_mapping);
     }
   }
@@ -140,7 +140,7 @@ struct TestViewMDSpanConversion {
     static_assert(decltype(cvt)::rank() == ViewType::rank);
     static_assert(std::is_same_v<typename decltype(cvt)::value_type,
                                  typename ViewType::value_type>);
-    ASSERT_EQ(cvt.data_handle(), v.data());
+    ASSERT_EQ(Kokkos::Impl::ptr_from_data_handle(cvt.data_handle()), v.data());
     ASSERT_EQ(cvt.mapping(), ref_layout_mapping);
   }
 
