@@ -270,6 +270,66 @@ struct AtomicAccessorRelaxed {
   }
 };
 
+template <class ElementType>
+struct RestrictAccessor {
+  using element_type     = ElementType;
+  using reference        = ElementType&;
+  using data_handle_type = ElementType* KOKKOS_IMPL_NEXT_ASSUME_NOALIAS;
+  using offset_policy    = RestrictAccessor;
+
+  KOKKOS_INLINE_FUNCTION
+  static constexpr auto impl_memory_traits() {
+    return MemoryTraits<Unmanaged | Restrict>();
+  }
+
+  KOKKOS_DEFAULTED_FUNCTION
+  RestrictAccessor() = default;
+
+  // Conversions from non-const to const element type
+  template <class OtherElementType,
+            std::enable_if_t<std::is_convertible_v<
+                OtherElementType (*)[], element_type (*)[]>>* = nullptr>
+  KOKKOS_FUNCTION constexpr RestrictAccessor(
+      Kokkos::default_accessor<OtherElementType>) noexcept {}
+
+  template <class OtherElementType,
+            std::enable_if_t<std::is_convertible_v<
+                OtherElementType (*)[], element_type (*)[]>>* = nullptr>
+  KOKKOS_FUNCTION constexpr RestrictAccessor(
+      RestrictAccessor<OtherElementType>) noexcept {}
+
+  template <class OtherElementType,
+            std::enable_if_t<std::is_convertible_v<
+                element_type (*)[], OtherElementType (*)[]>>* = nullptr>
+  KOKKOS_FUNCTION explicit operator default_accessor<OtherElementType>() const {
+    return default_accessor<OtherElementType>{};
+  }
+
+  KOKKOS_FUNCTION
+  constexpr reference access(
+#ifndef KOKKOS_ENABLE_OPENACC
+      const data_handle_type& p,
+#else
+      // FIXME OpenACC: illegal address when passing by reference
+      data_handle_type p,
+#endif
+      size_t i) const noexcept {
+    return p[i];
+  }
+
+  KOKKOS_FUNCTION
+  constexpr data_handle_type offset(
+#ifndef KOKKOS_ENABLE_OPENACC
+      const data_handle_type& p,
+#else
+      // FIXME OpenACC: illegal address when passing by reference
+      data_handle_type p,
+#endif
+      size_t i) const noexcept {
+    return p + i;
+  }
+};
+
 //=====================================================================
 //============= Reference Counted Accessor and DataHandle =============
 //=====================================================================
