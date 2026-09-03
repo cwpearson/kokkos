@@ -185,6 +185,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenACC;HIP;SYCL;NextSilicon)
         MDRangeReduce
         MDSpan
         MDSpanAtomicAccessor
+        MDSpanRestrictAccessor
         MDSpanConversion
         MinMaxClamp
         NumericTraits
