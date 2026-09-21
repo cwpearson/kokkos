@@ -83,8 +83,6 @@ void test_functor_analysis() {
   static_assert(A02::StaticValueSize == sizeof(double));
   ASSERT_EQ(R02(c02).length(), 1);
 
-  //------------------------------
-
   TestFunctorAnalysis_03 c03;
   using A03 = Kokkos::Impl::FunctorAnalysis<
       Kokkos::Impl::FunctorPatternInterface::REDUCE,
@@ -131,6 +129,15 @@ void test_functor_analysis() {
 }
 
 TEST(TEST_CATEGORY, functor_analysis) { test_functor_analysis(); }
+
+TEST(TEST_CATEGORY, generic_lambda_parallel_reduce) {
+  // Ensure the reduction value type can be deduced from the scalar argument,
+  // since it cannot be deduced from a generic lambda.
+  int result = 0;
+  Kokkos::parallel_reduce(Kokkos::RangePolicy<TEST_EXECSPACE>(0, 1),
+                          KOKKOS_LAMBDA(auto, int&){}, result);
+  ASSERT_EQ(result, 0);
+}
 
 }  // namespace Test
 
