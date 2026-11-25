@@ -362,7 +362,7 @@ class HostInaccessibleSharedAllocationRecordCommon
 
     fill_host_accessible_header_info(this, header, label);
 
-    Kokkos::Impl::DeepCopy<MemorySpace, HostSpace>(
+    Kokkos::Impl::DeepCopy<MemorySpace, HostSpace, ExecutionSpace>(
         exec, SharedAllocationRecord<void, void>::m_alloc_ptr, &header,
         sizeof(SharedAllocationHeader));
   }
@@ -435,7 +435,12 @@ SharedAllocationRecord<void, void>
 
 template <class MemorySpace>
 using SharedAllocationRecordBase = std::conditional_t<
-    Kokkos::Impl::MemorySpaceAccess<Kokkos::HostSpace, MemorySpace>::accessible,
+    Kokkos::Impl::MemorySpaceAccess<Kokkos::HostSpace, MemorySpace>::accessible
+#ifdef KOKKOS_ENABLE_NEXTSILICON
+        && !std::is_same_v<MemorySpace,
+                           Kokkos::Experimental::NextSiliconSharedSpace>
+#endif
+    ,
     SharedAllocationRecordCommon<MemorySpace>,
     HostInaccessibleSharedAllocationRecordCommon<MemorySpace>>;
 

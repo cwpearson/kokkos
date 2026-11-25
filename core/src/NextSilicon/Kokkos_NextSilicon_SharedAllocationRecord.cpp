@@ -3,8 +3,10 @@
 
 #define KOKKOS_IMPL_PUBLIC_INCLUDE
 
-#include <impl/Kokkos_SharedAlloc_timpl.hpp>
+#include <NextSilicon/Kokkos_NextSilicon.hpp>
 #include <NextSilicon/Kokkos_NextSiliconSpace.hpp>
+#include <NextSilicon/Kokkos_NextSilicon_DeepCopy.hpp>
+#include <impl/Kokkos_SharedAlloc_timpl.hpp>
 
-KOKKOS_IMPL_SHARED_ALLOCATION_RECORD_EXPLICIT_INSTANTIATION(
+KOKKOS_IMPL_HOST_INACCESSIBLE_SHARED_ALLOCATION_RECORD_EXPLICIT_INSTANTIATION(
     Kokkos::Experimental::NextSiliconSharedSpace);
