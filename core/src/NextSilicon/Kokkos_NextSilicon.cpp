@@ -64,7 +64,7 @@ void Kokkos::Experimental::NextSilicon::impl_initialize(
   Impl::NextSiliconInternal::default_instance =
       Kokkos::Impl::HostSharedPtr<Impl::NextSiliconInternal>(
           internal_instance,
-          nextsilicon_debug_host_pinned_delete<Impl::NextSiliconInternal>);
+          &nextsilicon_debug_host_pinned_delete<Impl::NextSiliconInternal>);
 }
 
 void Kokkos::Experimental::NextSilicon::impl_finalize() {
