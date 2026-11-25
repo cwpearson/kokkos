@@ -8,7 +8,13 @@
 #include <Kokkos_Atomic.hpp>
 #include <impl/Kokkos_Error.hpp>
 
+#ifdef KOKKOS_ENABLE_NEXTSILICON
+#include <nextapi/memory.h>
+#endif
+
+#include <cstdlib>
 #include <functional>
+#include <new>
 
 namespace Kokkos {
 namespace Impl {
@@ -31,7 +37,7 @@ class HostSharedPtr {
                   std::is_copy_constructible_v<Deleter>);
     if (element_ptr) {
       try {
-        m_control = new Control{deleter, 1};
+        m_control = allocate_control(deleter);
       } catch (...) {
         deleter(element_ptr);
         throw;
@@ -131,7 +137,7 @@ class HostSharedPtr {
           if (count == 1) {
             (m_control->m_deleter)(m_element_ptr);
             m_element_ptr = nullptr;
-            delete m_control;
+            deallocate_control(m_control);
             m_control = nullptr;
           }
         }))
@@ -141,6 +147,37 @@ class HostSharedPtr {
     std::function<void(T*)> m_deleter;
     int m_counter;
   };
+
+  template <class Deleter>
+  static Control* allocate_control(const Deleter& deleter) {
+#ifdef KOKKOS_ENABLE_NEXTSILICON
+    constexpr std::size_t page_size = 1 << 20;
+    void* storage                   = std::aligned_alloc(page_size, page_size);
+    if (!storage) throw std::bad_alloc();
+
+    try {
+      auto* control = new (storage) Control{deleter, 1};
+      nextapi_mem_migrate(storage, page_size, NEXTAPI_PAGE_LOC_HOST,
+                          /*pin=*/true);
+      return control;
+    } catch (...) {
+      std::free(storage);
+      throw;
+    }
+#else
+    return new Control{deleter, 1};
+#endif
+  }
+
+  static void deallocate_control(Control* control) noexcept {
+#ifdef KOKKOS_ENABLE_NEXTSILICON
+    if (!control) return;
+    control->~Control();
+    std::free(control);
+#else
+    delete control;
+#endif
+  }
 
   T* m_element_ptr   = nullptr;
   Control* m_control = nullptr;
