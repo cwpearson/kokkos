@@ -10,8 +10,42 @@
 #include <impl/Kokkos_ExecSpaceManager.hpp>
 #include <impl/Kokkos_CheckUsage.hpp>
 
+#include <nextapi/memory.h>
 #include <nextapi/parallelism.hpp>
+
+#include <cstdlib>
+#include <new>
 #include <ostream>
+
+namespace {
+
+constexpr std::size_t nextsilicon_debug_page_size = 1 << 20;
+
+template <class T>
+T* nextsilicon_debug_host_pinned_new() {
+  void* storage = std::aligned_alloc(nextsilicon_debug_page_size,
+                                     nextsilicon_debug_page_size);
+  if (!storage) throw std::bad_alloc();
+
+  try {
+    auto* ptr = new (storage) T;
+    nextapi_mem_migrate(storage, nextsilicon_debug_page_size,
+                        NEXTAPI_PAGE_LOC_HOST, /*pin=*/true);
+    return ptr;
+  } catch (...) {
+    std::free(storage);
+    throw;
+  }
+}
+
+template <class T>
+void nextsilicon_debug_host_pinned_delete(T* ptr) {
+  if (!ptr) return;
+  ptr->~T();
+  std::free(ptr);
+}
+
+}  // namespace
 
 Kokkos::Experimental::NextSilicon::NextSilicon()
     : m_space_instance(
@@ -25,8 +59,12 @@ Kokkos::Experimental::NextSilicon::~NextSilicon() {
 void Kokkos::Experimental::NextSilicon::impl_initialize(
     InitializationSettings const& /*settings*/) {
   Kokkos::Impl::run_nextsilicon_initialization_callbacks();
+  auto* internal_instance =
+      nextsilicon_debug_host_pinned_new<Impl::NextSiliconInternal>();
   Impl::NextSiliconInternal::default_instance =
-      Kokkos::Impl::HostSharedPtr(new Impl::NextSiliconInternal);
+      Kokkos::Impl::HostSharedPtr<Impl::NextSiliconInternal>(
+          internal_instance,
+          nextsilicon_debug_host_pinned_delete<Impl::NextSiliconInternal>);
 }
 
 void Kokkos::Experimental::NextSilicon::impl_finalize() {
