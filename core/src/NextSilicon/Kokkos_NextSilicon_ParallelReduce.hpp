@@ -113,25 +113,17 @@ struct NextSiliconParallelReduceImpl {
     }
   }
 
-  __attribute__((noinline)) void execute_internal(
-      uint32_t num_partial_prod, ValueType* const result_arr) const {
-    const auto& functor = m_functor_reducer.get_functor();
-    const auto& reducer = m_functor_reducer.get_reducer();
-
+  void execute_internal(uint32_t num_partial_prod,
+                        ValueType* const result_arr) const {
     IndexType chunk_size = 1;
 
     // allow init/final-only case (empty iteration space) to be handed off
     if (m_policy.end() <= m_policy.begin()) {
-      nextapi::parallel_for<nextapi::work_distribution::STATIC>(
-          IndexType(0), IndexType(1), {.chunk_size = chunk_size},
-          init_final_function, &reducer, result_arr);
+      execute_init_final(chunk_size, result_arr);
       return;
     }
 
-    nextapi::parallel_for<nextapi::work_distribution::STATIC>(
-        IndexType(0), static_cast<IndexType>(num_partial_prod),
-        {.chunk_size = chunk_size}, parallel_function, num_partial_prod,
-        &functor, &reducer, &m_policy, result_arr);
+    execute_partial_reduce(num_partial_prod, chunk_size, result_arr);
 
     uint32_t final_join_count  = num_partial_prod;
     uint32_t final_join_stride = 1;
@@ -143,13 +135,53 @@ struct NextSiliconParallelReduceImpl {
       final_join_count =
           (num_partial_prod + final_join_stride - 1) / final_join_stride;
 
-      nextapi::parallel_for<nextapi::work_distribution::STATIC>(
-          IndexType(0), static_cast<IndexType>(final_join_count),
-          {.chunk_size = chunk_size}, tree_join_function, num_partial_prod,
-          final_join_stride, &reducer, result_arr);
+      execute_tree_join(num_partial_prod, final_join_count, final_join_stride,
+                        chunk_size, result_arr);
     }
 
     // allow final sequential join to be handed off
+    execute_final_join(final_join_count, final_join_stride, chunk_size,
+                       result_arr);
+  }
+
+  __attribute__((noinline)) void execute_init_final(
+      IndexType chunk_size, ValueType* const result_arr) const {
+    const auto& reducer = m_functor_reducer.get_reducer();
+
+    nextapi::parallel_for<nextapi::work_distribution::STATIC>(
+        IndexType(0), IndexType(1), {.chunk_size = chunk_size},
+        init_final_function, &reducer, result_arr);
+  }
+
+  __attribute__((noinline)) void execute_partial_reduce(
+      uint32_t num_partial_prod, IndexType chunk_size,
+      ValueType* const result_arr) const {
+    const auto& functor = m_functor_reducer.get_functor();
+    const auto& reducer = m_functor_reducer.get_reducer();
+
+    nextapi::parallel_for<nextapi::work_distribution::STATIC>(
+        IndexType(0), static_cast<IndexType>(num_partial_prod),
+        {.chunk_size = chunk_size}, parallel_function, num_partial_prod,
+        &functor, &reducer, &m_policy, result_arr);
+  }
+
+  __attribute__((noinline)) void execute_tree_join(
+      uint32_t num_partial_prod, uint32_t final_join_count,
+      uint32_t final_join_stride, IndexType chunk_size,
+      ValueType* const result_arr) const {
+    const auto& reducer = m_functor_reducer.get_reducer();
+
+    nextapi::parallel_for<nextapi::work_distribution::STATIC>(
+        IndexType(0), static_cast<IndexType>(final_join_count),
+        {.chunk_size = chunk_size}, tree_join_function, num_partial_prod,
+        final_join_stride, &reducer, result_arr);
+  }
+
+  __attribute__((noinline)) void execute_final_join(
+      uint32_t final_join_count, uint32_t final_join_stride,
+      IndexType chunk_size, ValueType* const result_arr) const {
+    const auto& reducer = m_functor_reducer.get_reducer();
+
     nextapi::parallel_for<nextapi::work_distribution::STATIC>(
         IndexType(0), IndexType(1), {.chunk_size = chunk_size},
         final_join_function, final_join_count, final_join_stride, &reducer,
